@@ -595,13 +595,25 @@ const GRADE_UNITS = {
 };
 
 const st = {grade:"고1",sub:"다항식",lv:2,lvL:"기본",type:"객관식",cnt:3};
-let problems=[],pst=[],selIdx=-1,apiKey="";
+let problems=[], pst=[], selIdx=-1;
+let apiKey = localStorage.getItem('groqApiKey') || "";
 
-// Grade tabs
-document.querySelectorAll('#gradeG .grade-tab').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#gradeG .grade-tab').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); st.grade=b.dataset.g; buildSubList(b.dataset.g);
-}));
+// 페이지 로드 시 저장된 키가 있다면 UI에 반영
+window.addEventListener('DOMContentLoaded', () => {
+  if(apiKey) {
+    document.getElementById('apiIn').value = apiKey;
+    document.getElementById('apiStatus').textContent = '✓ Groq API 키 설정됨 — AI 채점 활성화';
+  }
+});let problems=[], pst=[], selIdx=-1;
+let apiKey = localStorage.getItem('groqApiKey') || "";
+
+// 페이지 로드 시 저장된 키가 있다면 UI에 반영
+window.addEventListener('DOMContentLoaded', () => {
+  if(apiKey) {
+    document.getElementById('apiIn').value = apiKey;
+    document.getElementById('apiStatus').textContent = '✓ Groq API 키 설정됨 — AI 채점 활성화';
+  }
+});
 
 function buildSubList(grade){
   const units=GRADE_UNITS[grade];
@@ -752,18 +764,13 @@ function renderMixedLatex(text, el){
 
 document.getElementById('apiSaveBtn').addEventListener('click',()=>{
   apiKey=document.getElementById('apiIn').value.trim();
+  if(apiKey) {
+    localStorage.setItem('groqApiKey', apiKey);
+  } else {
+    localStorage.removeItem('groqApiKey');
+  }
   document.getElementById('apiStatus').textContent=apiKey?'✓ Groq API 키 설정됨 — AI 채점 활성화':'키 없으면 키워드 기반 채점';
 });
-
-// ─── LaTeX 원본 → 수식 입력기로 보내기 ───
-// 드래그한 영역의 KaTeX 원본을 추출해 mkInput에 넣고 미리보기 업데이트
-document.getElementById('latexCopyBtn').addEventListener('click',function(){
-  const btn = this;
-  const sel = window.getSelection();
-  if(!sel || sel.rangeCount === 0 || sel.isCollapsed){
-    alert('먼저 정답·풀이 영역에서 수식이나 텍스트를 드래그로 선택하세요.');
-    return;
-  }
 
   const range = sel.getRangeAt(0);
 
